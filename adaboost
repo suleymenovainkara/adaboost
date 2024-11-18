@@ -1,0 +1,29 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+file_path = r"C:/Users/Админ/OneDrive/Documents/3 курс/малайзия/Time-Wasters on Social Media.csv"
+data = pd.read_csv(file_path)
+
+data.dropna(inplace=True)
+
+X = data.drop(['Satisfaction', 'UserID'], axis=1)  # Удаляем UserID, так как он не влияет на предсказание
+y = data['Satisfaction']
+
+X = pd.get_dummies(X, drop_first=True)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+base_model = DecisionTreeClassifier(max_depth=1)  # Базовая модель - слабый классификатор (пень)
+adaboost_model = AdaBoostClassifier(estimator=base_model, n_estimators=50, learning_rate=1.0, random_state=42)
+
+adaboost_model.fit(X_train, y_train)
+
+y_pred = adaboost_model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.2f}")
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
